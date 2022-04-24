@@ -1,9 +1,7 @@
-package com.kodesederhana.simple.controller.rest;
+package com.kodesederhana.simple.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map;
-
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class HelloRestControllerTest {
+public class HelloControllerTest {
+
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -23,12 +23,10 @@ public class HelloRestControllerTest {
 	public void testHello() {
 		webTestClient
 			.get().uri("/hello")
-			.accept(MediaType.APPLICATION_JSON)
+			.accept(MediaType.TEXT_HTML)
 			.exchange()
 				.expectStatus().isOk()
-				.expectBody(Map.class).value(entry -> {
-					assertThat(entry.get("message")).isEqualTo("Salam perdamaian !!");
-				});
+				.expectBody(String.class).value(Matchers.containsString("Salam perdamaian !!"));
 	}
 
 }
