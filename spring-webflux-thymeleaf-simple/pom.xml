@@ -11,10 +11,10 @@
 	</parent>
 	
 	<groupId>com.kodesederhana</groupId>
-	<artifactId>spring-webflux-simple</artifactId>
+	<artifactId>spring-webflux-thymeleaf-simple</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>spring-webflux-simple</name>
-	<description>Simple Spring Webflux</description>
+	<name>spring-webflux-thymeleaf-simple</name>
+	<description>Simple Spring Webflux and Thymeleaf</description>
 	
 	<properties>
 		<java.version>11</java.version>
@@ -29,7 +29,12 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 		
-		<!-- TOOL -->
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        
+        <!-- TOOL -->
         
         <dependency>
             <groupId>org.springframework.boot</groupId>
