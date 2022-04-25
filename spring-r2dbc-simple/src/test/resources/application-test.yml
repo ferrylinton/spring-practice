@@ -1,34 +1,21 @@
 spring:
 
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:simpledb;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;IGNORECASE=TRUE
-    username: sa
-    password: password
-    hikari:
-      poolName: Hikari
-      auto-commit: false
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-  
-  jpa:
-    hibernate.ddl-auto: none
-    show-sql: true
-    properties.hibernate.format_sql: true
-          
   liquibase:
     enabled: true
+    url: jdbc:h2:mem:/h2db/simpledb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;IGNORECASE=TRUE;DATABASE_TO_UPPER=false
     user: sa
     password: password
     change-log: classpath:/db/changelog/db.changelog-master.xml
     
-  h2:
-    console:
-      enabled: false
-      path: /h2-console
-      
+  r2dbc:
+    url: r2dbc:h2:mem:////h2db/simpledb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;IGNORECASE=TRUE;DATABASE_TO_UPPER=false
+    username: sa
+    password: password
+    
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+
 server:
   port: 8080
