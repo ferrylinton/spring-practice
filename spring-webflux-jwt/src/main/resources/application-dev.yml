@@ -3,6 +3,10 @@ pbkdf2password:
   iteration: 33
   keylength: 256
 
+jwt:
+  secret: ThisIsSecretForJWTHS512SignatureAlgorithmThatMUSTHave64ByteLength
+  expiration: 28800
+
 spring:
   
   liquibase:
