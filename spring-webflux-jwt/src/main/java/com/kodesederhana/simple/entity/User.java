@@ -32,6 +32,6 @@ public class User{
 	private String password;
 	
 	@Transient
-	private List<Role> roles;
+	private List<String> roles;
 	
 }

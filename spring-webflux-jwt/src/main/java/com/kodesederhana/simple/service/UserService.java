@@ -1,8 +1,12 @@
 package com.kodesederhana.simple.service;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.stereotype.Service;
@@ -52,7 +56,7 @@ public class UserService {
 				.flatMap(user -> {
 					return findRolesByUsername(user.getUsername()).collectList()
 							.map(roles -> {
-								user.setRoles(roles);
+								user.setRoles(toString(roles));
 								return user;
 							});
 				}).switchIfEmpty(Mono.error(new NotFoundException()));
@@ -63,7 +67,7 @@ public class UserService {
 				.flatMap(user -> {
 					return findRolesByUsername(user.getUsername()).collectList()
 							.map(roles -> {
-								user.setRoles(roles);
+								user.setRoles(toString(roles));
 								return user;
 							});
 				});
@@ -92,22 +96,29 @@ public class UserService {
 		Mono<List<Role>> findByNameIn = roleRepository.findByNameIn(roles).collectList();
 		Mono<User> save = userRepository.save(user);
 		
-		return Mono.zip(findByNameIn, save)
+		return Mono.zip(save, findByNameIn)
 				.flatMap(tuple -> {
-					User newUser = tuple.getT2();
-					newUser.setRoles(tuple.getT1());
+					deleteUserRoles(tuple.getT1())
+						.map(rowsUpdated -> {
+							insertUserRoles(tuple.getT1(), tuple.getT2()).subscribe();
+							return rowsUpdated;
+						}).subscribe();
 					
-					insertUserRoles(newUser).subscribe();
 					return findByUsername(user.getUsername());
 				});
 	}
 	
-	public Mono<Void> delete(User user){
-		return userRepository.delete(user)
-				.map(rs -> {
-					deleteUserRoles(user).subscribe();
-					return rs;
-				});
+	public Mono<Map<String, Object>> delete(UUID id){
+		return userRepository.findById(id)
+				.flatMap(user -> {
+						return deleteUserRoles(user)
+							.map(rowsUpdated -> {
+								userRepository.delete(user).subscribe();
+								Map<String, Object> data = new HashMap<>();
+								data.put("message", "Data with id=[" + id + "] is deleted");
+								return data;
+							});
+				}).switchIfEmpty(Mono.error(new NotFoundException()));
 	}
 	
 	public Flux<Role> findRolesByUsername(String username) {
@@ -123,12 +134,12 @@ public class UserService {
                 });
 	}
 	
-	private Flux<Object> insertUserRoles(User user) {
+	private Flux<Object> insertUserRoles(User user, Collection<Role> roles) {
 		return template.getDatabaseClient().inConnectionMany(connection -> {
 
             var statement = connection.createStatement(INSERT_USER_ROLE);
 
-            for (var role : user.getRoles()) {
+            for (var role : roles) {
                 statement
                 	.bind(0, user.getId())
                 	.bind(1, role.getId())
@@ -146,4 +157,9 @@ public class UserService {
                 .rowsUpdated();
 	}
 	
+	private List<String> toString(Collection<Role> roles){
+		return roles.stream()
+			    .map(Role::getName)
+			    .collect(Collectors.toList());
+	}
 }
