@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: Spring-Reactive-Data-Redis
+
+  # Redis DB configuration
+  redis:
+    host: localhost
+    port: 6379
+    password:
+
+# Server configuration
+server:
+  port: 8080
+
+# Logging settings
+logging:
+  level:
+    root: INFO
+    com.habeebcycle: DEBUG
+    org.springframework.data.redis: DEBUG
+
