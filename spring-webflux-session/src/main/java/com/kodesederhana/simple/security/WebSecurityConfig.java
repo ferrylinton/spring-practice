@@ -4,11 +4,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
@@ -16,12 +14,7 @@ import org.springframework.session.data.redis.config.annotation.web.server.Enabl
 import org.springframework.web.server.session.HeaderWebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
 
-import com.kodesederhana.simple.service.UserService;
-
-import lombok.AllArgsConstructor;
-import reactor.core.publisher.Mono;
-
-@AllArgsConstructor
+@EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 @EnableRedisWebSession
 public class WebSecurityConfig {
@@ -45,31 +38,22 @@ public class WebSecurityConfig {
         return new WebSessionServerSecurityContextRepository();
     }
 	
-//	@Bean
-//    public ReactiveUserDetailsService userDetailsService(UserService userService) {
-//
-//        return username -> userService.findByUsername(username)
-//                .map(u -> User
-//                        .withUsername(u.getUsername()).password(u.getPassword())
-//                        .authorities(u.getRoles().toArray(new String[0]))
-//                        .accountExpired(false)
-//                        .credentialsExpired(false)
-//                        .disabled(false)
-//                        .accountLocked(false)
-//                        .build()
-//                );
-//    }
-	
 	@Bean
 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
-			.csrf(it -> it.disable())
-			//.httpBasic(it -> it.securityContextRepository(new WebSessionServerSecurityContextRepository()))
+			.exceptionHandling()
+	        .authenticationEntryPoint(new UnauthorizedHandler())
+	        .accessDeniedHandler(new AccessDeniedHandler())
+	        .and()
+	        .csrf().disable()
+            .formLogin().disable()
+            .httpBasic().disable()
 			.securityContextRepository(webSessionServerSecurityContextRepository())
 			.authorizeExchange()
-			.pathMatchers("/auth/login").permitAll()
+			.pathMatchers("/login").permitAll()
 			.anyExchange().authenticated();
 		
 		return http.build();
 	}
+	
 }
