@@ -64,7 +64,7 @@ public class AuthController {
 				});
 	}
 	
-	@PreAuthorize("hasRole('ROLE_TEST1')")
+	@PreAuthorize("hasAuthority('USER')")
     @GetMapping("/info")
     public Mono<?> current(@AuthenticationPrincipal Mono<UserDetails> userDetails) {
         return userDetails
@@ -76,7 +76,7 @@ public class AuthController {
                 });
     }
     
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('XXX')")
     @GetMapping("/denied")
     public Mono<?> denied(@AuthenticationPrincipal Mono<UserDetails> userDetails) {
         return userDetails
